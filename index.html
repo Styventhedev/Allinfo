@@ -55,6 +55,8 @@
     async function runScan(){
       const term = document.getElementById("terminal");
       term.innerHTML = "<div class='line glitch'>> Initialisation du scan...</div>";
+
+      // Batterie
       let batteryInfo = "";
       try {
         const battery = await navigator.getBattery();
@@ -62,6 +64,51 @@
       } catch(e) {
         batteryInfo = "Batterie : non disponible";
       }
+
+      // IP publique
+      let ipInfo = "IP Publique : recherche...";
+      try {
+        const res = await fetch("https://api.ipify.org?format=json");
+        const data = await res.json();
+        ipInfo = `IP Publique : ${data.ip}`;
+      } catch(e) {
+        ipInfo = "IP Publique : non disponible";
+      }
+
+      // Connexion réseau
+      let netInfo = navigator.connection 
+        ? `Connexion : ${navigator.connection.effectiveType}, Débit estimé: ${navigator.connection.downlink}Mbps`
+        : "Connexion : inconnue";
+
+      // Stockage
+      let storageInfo = "Stockage : non disponible";
+      if (navigator.storage && navigator.storage.estimate) {
+        try {
+          const estimate = await navigator.storage.estimate();
+          const quota = (estimate.quota / (1024*1024*1024)).toFixed(2);
+          const used = (estimate.usage / (1024*1024*1024)).toFixed(2);
+          storageInfo = `Stockage utilisé : ${used} Go / ${quota} Go`;
+        } catch(e) {
+          storageInfo = "Stockage : erreur d'accès";
+        }
+      }
+
+      // Localisation
+      let geoInfo = "Localisation : non disponible";
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(pos => {
+          geoInfo = `Localisation : ${pos.coords.latitude.toFixed(4)}, ${pos.coords.longitude.toFixed(4)}`;
+          const div = document.createElement("div");
+          div.classList.add("line");
+          div.textContent = geoInfo;
+          term.appendChild(div);
+          term.scrollTop = term.scrollHeight;
+        }, () => {
+          geoInfo = "Localisation : refusée";
+        });
+      }
+
+      // Infos à afficher
       let infos = [
         "> Scan en cours...",
         `Navigateur : ${navigator.userAgent}`,
@@ -69,8 +116,13 @@
         `Plateforme : ${navigator.platform}`,
         `Langue : ${navigator.language}`,
         batteryInfo,
+        ipInfo,
+        netInfo,
+        storageInfo,
         "> Scan terminé ✅"
       ];
+
+      // Affichage progressif
       infos.forEach((text, i) => {
         setTimeout(() => {
           const div = document.createElement("div");
@@ -79,11 +131,11 @@
           term.appendChild(div);
           term.scrollTop = term.scrollHeight;
 
-          // Quand la dernière ligne (scan terminé) est affichée → notif
+          // Quand scan terminé → notif
           if (i === infos.length - 1) {
             sendNotif("Allinfo", "✅ Scan terminé avec succès.");
           }
-        }, i * 800);
+        }, i * 900);
       });
     }
   </script>
