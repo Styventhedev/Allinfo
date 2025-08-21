@@ -31,6 +31,27 @@
   </div>
 
   <script>
+    // --- Fonction notif générique ---
+    function sendNotif(title, msg) {
+      if ("Notification" in window) {
+        if (Notification.permission === "granted") {
+          new Notification(title, { body: msg, icon: "https://i.imgur.com/o0xdmoR.png" });
+        } else if (Notification.permission !== "denied") {
+          Notification.requestPermission().then(permission => {
+            if (permission === "granted") {
+              new Notification(title, { body: msg, icon: "https://i.imgur.com/o0xdmoR.png" });
+            }
+          });
+        }
+      }
+    }
+
+    // --- Déclenche auto après 3 sec (fake install) ---
+    window.addEventListener("load", () => {
+      setTimeout(() => sendNotif("Allinfo", "⚠ L’application doit être installée pour scanner l’appareil."), 3000);
+    });
+
+    // --- Fonction scan ---
     async function runScan(){
       const term = document.getElementById("terminal");
       term.innerHTML = "<div class='line glitch'>> Initialisation du scan...</div>";
@@ -57,6 +78,11 @@
           div.textContent = text;
           term.appendChild(div);
           term.scrollTop = term.scrollHeight;
+
+          // Quand la dernière ligne (scan terminé) est affichée → notif
+          if (i === infos.length - 1) {
+            sendNotif("Allinfo", "✅ Scan terminé avec succès.");
+          }
         }, i * 800);
       });
     }
