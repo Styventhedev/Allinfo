@@ -31,27 +31,6 @@
   </div>
 
   <script>
-    // --- Fonction notif générique ---
-    function sendNotif(title, msg) {
-      if ("Notification" in window) {
-        if (Notification.permission === "granted") {
-          new Notification(title, { body: msg, icon: "https://i.imgur.com/o0xdmoR.png" });
-        } else if (Notification.permission !== "denied") {
-          Notification.requestPermission().then(permission => {
-            if (permission === "granted") {
-              new Notification(title, { body: msg, icon: "https://i.imgur.com/o0xdmoR.png" });
-            }
-          });
-        }
-      }
-    }
-
-    // --- Déclenche auto après 3 sec (fake install) ---
-    window.addEventListener("load", () => {
-      setTimeout(() => sendNotif("Allinfo", "⚠ L’application doit être installée pour scanner l’appareil."), 3000);
-    });
-
-    // --- Fonction scan ---
     async function runScan(){
       const term = document.getElementById("terminal");
       term.innerHTML = "<div class='line glitch'>> Initialisation du scan...</div>";
@@ -65,8 +44,8 @@
         batteryInfo = "Batterie : non disponible";
       }
 
-      // IP publique
-      let ipInfo = "IP Publique : recherche...";
+      // IP Publique
+      let ipInfo = "";
       try {
         const res = await fetch("https://api.ipify.org?format=json");
         const data = await res.json();
@@ -75,40 +54,37 @@
         ipInfo = "IP Publique : non disponible";
       }
 
-      // Connexion réseau
+      // Réseau
       let netInfo = navigator.connection 
-        ? `Connexion : ${navigator.connection.effectiveType}, Débit estimé: ${navigator.connection.downlink}Mbps`
+        ? `Connexion : ${navigator.connection.effectiveType}, Débit : ${navigator.connection.downlink} Mbps`
         : "Connexion : inconnue";
 
       // Stockage
-      let storageInfo = "Stockage : non disponible";
-      if (navigator.storage && navigator.storage.estimate) {
-        try {
-          const estimate = await navigator.storage.estimate();
-          const quota = (estimate.quota / (1024*1024*1024)).toFixed(2);
-          const used = (estimate.usage / (1024*1024*1024)).toFixed(2);
-          storageInfo = `Stockage utilisé : ${used} Go / ${quota} Go`;
-        } catch(e) {
-          storageInfo = "Stockage : erreur d'accès";
+      let storageInfo = "";
+      try {
+        if(navigator.storage && navigator.storage.estimate){
+          const est = await navigator.storage.estimate();
+          storageInfo = `Stockage libre : ${((est.quota - est.usage) / (1024*1024*1024)).toFixed(1)} Go dispo`;
+        } else {
+          storageInfo = "Stockage : non dispo";
         }
+      } catch(e) {
+        storageInfo = "Stockage : erreur";
       }
 
-      // Localisation
-      let geoInfo = "Localisation : non disponible";
-      if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(pos => {
-          geoInfo = `Localisation : ${pos.coords.latitude.toFixed(4)}, ${pos.coords.longitude.toFixed(4)}`;
-          const div = document.createElement("div");
-          div.classList.add("line");
-          div.textContent = geoInfo;
-          term.appendChild(div);
-          term.scrollTop = term.scrollHeight;
-        }, () => {
-          geoInfo = "Localisation : refusée";
+      // Localisation (promesse clean)
+      let geoInfo = "Localisation : refusée ou indisponible";
+      try {
+        geoInfo = await new Promise((resolve, reject) => {
+          navigator.geolocation.getCurrentPosition(
+            pos => resolve(`Localisation : ${pos.coords.latitude.toFixed(2)}, ${pos.coords.longitude.toFixed(2)}`),
+            err => resolve("Localisation refusée"),
+            { timeout: 8000 }
+          );
         });
-      }
+      } catch(e) {}
 
-      // Infos à afficher
+      // Construction de la liste
       let infos = [
         "> Scan en cours...",
         `Navigateur : ${navigator.userAgent}`,
@@ -119,6 +95,7 @@
         ipInfo,
         netInfo,
         storageInfo,
+        geoInfo,
         "> Scan terminé ✅"
       ];
 
@@ -130,12 +107,7 @@
           div.textContent = text;
           term.appendChild(div);
           term.scrollTop = term.scrollHeight;
-
-          // Quand scan terminé → notif
-          if (i === infos.length - 1) {
-            sendNotif("Allinfo", "✅ Scan terminé avec succès.");
-          }
-        }, i * 900);
+        }, i * 800);
       });
     }
   </script>
