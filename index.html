@@ -1,91 +1,103 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>OS Hacker Web Avancé</title>
-<style>
+  <meta charset="UTF-8">
+  <title>OS Hacker Web</title>
+  <style>
     body {
-        background-color: black;
-        color: lime;
-        font-family: "Courier New", monospace;
-        text-align: center;
-        margin: 0;
-        padding: 20px;
+      background: #000;
+      color: #00ff00;
+      font-family: monospace;
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
     }
     #terminal {
-        border: 2px solid lime;
-        padding: 20px;
-        margin-top: 20px;
-        height: 300px;
-        overflow-y: auto;
-        white-space: pre-line;
-        text-align: left;
+      width: 90%;
+      max-width: 900px;
+      margin: 50px auto;
+      padding: 20px;
+      border: 2px solid #00ff00;
+      background: rgba(0,0,0,0.85);
+      box-shadow: 0 0 20px #00ff00;
+      border-radius: 10px;
+      min-height: 400px;
     }
-    #os-image {
-        width: 150px;
-        cursor: pointer;
-        margin-top: 20px;
+    .line {
+      margin: 5px 0;
+      white-space: pre-wrap;
     }
-</style>
+    .glitch {
+      font-size: 22px;
+      text-transform: uppercase;
+      position: relative;
+      animation: glitch 2s infinite;
+    }
+    @keyframes glitch {
+      0% { text-shadow: 2px 0 red, -2px 0 blue; }
+      20% { text-shadow: -2px 0 lime, 2px 0 magenta; }
+      40% { text-shadow: 2px 2px cyan, -2px -2px yellow; }
+      60% { text-shadow: -2px 2px red, 2px -2px blue; }
+      100% { text-shadow: 2px 0 red, -2px 0 blue; }
+    }
+    button {
+      background: #000;
+      color: #00ff00;
+      border: 1px solid #00ff00;
+      padding: 8px 16px;
+      cursor: pointer;
+      font-family: monospace;
+      margin-top: 10px;
+    }
+    button:hover {
+      background: #00ff00;
+      color: #000;
+    }
+  </style>
 </head>
 <body>
+  <div id="terminal">
+    <div class="line glitch">> OS Hacker Web</div>
+    <div class="line">Bienvenue agent_404. Appuie pour scanner ton appareil.</div>
+    <button onclick="runScan()">▶ Lancer le scan</button>
+  </div>
 
-<h1>OS Hacker Web</h1>
-<img id="os-image" src="styvenshop_emoji-1.png" alt="Clique ici">
-<div id="terminal">Clique sur l'image pour afficher les infos...</div>
+  <script>
+    async function runScan(){
+      const term = document.getElementById("terminal");
+      term.innerHTML = "<div class='line glitch'>> Initialisation du scan...</div>";
 
-<script>
-// Fonction pour récupérer IP locale via WebRTC
-async function getLocalIP() {
-    return new Promise((resolve, reject) => {
-        const pc = new RTCPeerConnection({iceServers: []});
-        pc.createDataChannel('');
-        pc.createOffer().then(offer => pc.setLocalDescription(offer));
-        pc.onicecandidate = event => {
-            if (!event.candidate) return;
-            const ipMatch = event.candidate.candidate.match(/(\d{1,3}(\.\d{1,3}){3})/);
-            if (ipMatch) {
-                resolve(ipMatch[1]);
-                pc.onicecandidate = null;
-            }
-        };
-        setTimeout(() => resolve("Non disponible"), 3000); // Timeout
-    });
-}
+      // Récupération batterie
+      let batteryInfo = "";
+      try {
+        const battery = await navigator.getBattery();
+        batteryInfo = `Batterie : ${Math.round(battery.level * 100)}% | En charge : ${battery.charging ? "Oui" : "Non"}`;
+      } catch(e) {
+        batteryInfo = "Batterie : non disponible";
+      }
 
-document.getElementById("os-image").addEventListener("click", async function() {
-    const terminal = document.getElementById("terminal");
-    terminal.textContent = "Chargement des infos...\n";
+      // Données système
+      let infos = [
+        "> Scan en cours...",
+        `Navigateur : ${navigator.userAgent}`,
+        `Cœurs CPU : ${navigator.hardwareConcurrency || "Inconnu"}`,
+        `Plateforme : ${navigator.platform}`,
+        `Langue : ${navigator.language}`,
+        batteryInfo,
+        "> Scan terminé ✅"
+      ];
 
-    // Attente simulation chargement
-    await new Promise(r => setTimeout(r, 1000));
-
-    // Récup IP locale
-    const localIP = await getLocalIP();
-
-    const lines = [
-        "Nom du navigateur : " + navigator.appName,
-        "Version : " + navigator.appVersion,
-        "Plateforme : " + navigator.platform,
-        "Langue : " + navigator.language,
-        "Cookies activés : " + navigator.cookieEnabled,
-        "Adresse IP locale : " + localIP
-    ];
-
-    // Effet terminal ligne par ligne
-    terminal.textContent = "";
-    let i = 0;
-    function showLine() {
-        if (i < lines.length) {
-            terminal.textContent += lines[i] + "\n";
-            i++;
-            setTimeout(showLine, 300);
-        }
+      // Affichage progressif style hacker
+      infos.forEach((text, i) => {
+        setTimeout(() => {
+          const div = document.createElement("div");
+          div.classList.add("line");
+          div.textContent = text;
+          term.appendChild(div);
+          term.scrollTop = term.scrollHeight;
+        }, i * 800);
+      });
     }
-    showLine();
-});
-</script>
-
+  </script>
 </body>
 </html>
