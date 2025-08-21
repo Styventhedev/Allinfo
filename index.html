@@ -1,39 +1,17 @@
-<!DOCTYPE html>
+    <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <link rel="icon" type="image/png" href="https://i.imgur.com/o0xdmoR.png">
   <meta charset="UTF-8">
-  <title>💻Web.plateform💻/title>
+  <title>OS Hacker Web</title>
+  <link rel="icon" type="image/png" href="https://i.imgur.com/o0xdmoR.png">
   <style>
-    body {
-      background: #000;
-      color: #00ff00;
-      font-family: monospace;
-      margin: 0;
-      padding: 0;
-      overflow: hidden;
-    }
-    #terminal {
-      width: 90%;
-      max-width: 900px;
-      margin: 50px auto;
-      padding: 20px;
-      border: 2px solid #00ff00;
-      background: rgba(0,0,0,0.85);
-      box-shadow: 0 0 20px #00ff00;
-      border-radius: 10px;
-      min-height: 400px;
-    }
-    .line {
-      margin: 5px 0;
-      white-space: pre-wrap;
-    }
-    .glitch {
-      font-size: 22px;
-      text-transform: uppercase;
-      position: relative;
-      animation: glitch 2s infinite;
-    }
+    body { background: #000; color: #00ff00; font-family: monospace; margin: 0; padding: 0; overflow: hidden; }
+    #terminal { width: 90%; max-width: 900px; margin: 50px auto; padding: 20px;
+                 border: 2px solid #00ff00; background: rgba(0,0,0,0.85);
+                 box-shadow: 0 0 20px #00ff00; border-radius: 10px; min-height: 400px; }
+    .line { margin: 5px 0; white-space: pre-wrap; }
+    .glitch { font-size: 22px; text-transform: uppercase; position: relative;
+              animation: glitch 2s infinite; }
     @keyframes glitch {
       0% { text-shadow: 2px 0 red, -2px 0 blue; }
       20% { text-shadow: -2px 0 lime, 2px 0 magenta; }
@@ -41,25 +19,16 @@
       60% { text-shadow: -2px 2px red, 2px -2px blue; }
       100% { text-shadow: 2px 0 red, -2px 0 blue; }
     }
-    button {
-      background: #000;
-      color: #00ff00;
-      border: 1px solid #00ff00;
-      padding: 8px 16px;
-      cursor: pointer;
-      font-family: monospace;
-      margin-top: 10px;
-    }
-    button:hover {
-      background: #00ff00;
-      color: #000;
-    }
+    button { background: #000; color: #00ff00; border: 1px solid #00ff00;
+             padding: 8px 16px; cursor: pointer; font-family: monospace;
+             margin-top: 10px; }
+    button:hover { background: #00ff00; color: #000; }
   </style>
 </head>
 <body>
   <div id="terminal">
-    <div class="line glitch">> web.plateform</div>
-    <div class="line">Bienvenue agent_404. Appuie pour scanner ton appareil.</div>
+    <div class="line glitch">> OS Hacker Web</div>
+    <div class="line">Bienvenue Agent_404. Appuie pour scanner ton appareil.</div>
     <button onclick="runScan()">▶ Lancer le scan</button>
   </div>
 
@@ -67,8 +36,6 @@
     async function runScan(){
       const term = document.getElementById("terminal");
       term.innerHTML = "<div class='line glitch'>> Initialisation du scan...</div>";
-
-      // Récupération batterie
       let batteryInfo = "";
       try {
         const battery = await navigator.getBattery();
@@ -76,8 +43,6 @@
       } catch(e) {
         batteryInfo = "Batterie : non disponible";
       }
-
-      // Données système
       let infos = [
         "> Scan en cours...",
         `Navigateur : ${navigator.userAgent}`,
@@ -87,8 +52,6 @@
         batteryInfo,
         "> Scan terminé ✅"
       ];
-
-      // Affichage progressif style hacker
       infos.forEach((text, i) => {
         setTimeout(() => {
           const div = document.createElement("div");
