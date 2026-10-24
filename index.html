@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>AllInfo — Les infos de ton appareil</title>
+<meta name="description" content="AllInfo affiche les informations que ton navigateur révèle sur ton appareil : écran, réseau, batterie, stockage et plus.">
+<meta name="theme-color" content="#080B12">
+<link rel="icon" type="image/png" href="styvenshop_emoji-1.png">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<main class="wrap">
+  <header class="head">
+    <div class="brand">ALL<span>INFO</span></div>
+    <small>par STYVENTHEDEV</small>
+  </header>
+
+  <section class="hero">
+    <h1>Scanne ton <em>appareil</em></h1>
+    <p>Découvre ce que ton navigateur révèle sur ton écran, ton réseau, ta batterie et plus encore.</p>
+    <div class="term" aria-live="polite"><span id="status">&gt; allinfo --prêt</span><span class="caret"></span></div>
+    <div class="actions">
+      <button id="scan" class="btn main" type="button">▶ Lancer le scan</button>
+      <button id="geo" class="btn" type="button" hidden>📍 Ajouter ma position</button>
+      <button id="copy" class="btn" type="button" hidden>⧉ Copier le rapport</button>
+    </div>
+  </section>
+
+  <section id="results" class="grid" aria-label="Résultats du scan"></section>
+
+  <p class="note">Tout se passe dans ton navigateur : rien n’est stocké. Seule l’IP publique passe par le service ipify.org. Les valeurs sont celles que ton navigateur accepte de donner : certaines sont arrondies, masquées ou indisponibles selon l’appareil.</p>
+</main>
+<footer>© <span id="year"></span> Styventhedev · AllInfo</footer>
+<script src="script.js" defer></script>
+</body>
+</html>
